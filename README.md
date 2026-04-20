@@ -4,6 +4,12 @@ This is split from the legacy v3 documentation into a standalone repo.
 
 Deployed at [v3-migration.vuejs.org](https://v3-migration.vuejs.org)
 
+## Implementation docs
+
+The actionable migration implementation guide is in `docs/README.md`.
+
+It is organized as numbered steps under `docs/01-升级核心依赖与构建链路.md` through `docs/37-统一运行与回归验收.md`.
+
 ## Translation guide
 
 All the documentation files can be found in `src`. It contains the English markdown files while translation(s) are stored in their corresponding `<lang>` sub-folder(s):
