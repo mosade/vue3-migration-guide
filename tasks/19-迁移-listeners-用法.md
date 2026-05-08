@@ -33,7 +33,7 @@
 如果项目有 `src` 目录，先在 `src` 下执行：
 
 ```bash
-rg -n '\$listeners|context\.listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'|inheritAttrs|\$attrs|emits\s*:' src
+rg -n '\$listeners|context\.listeners|\blisteners\b|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'|inheritAttrs|\$attrs|emits\s*:' src
 ```
 
 如果项目源码不在 `src`，把命令末尾的 `src` 替换为 `.`。
@@ -43,6 +43,7 @@ rg -n '\$listeners|context\.listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"
 - 必改：模板中存在 `v-on="$listeners"`。
 - 必改：JS 或 render 函数读取 `this.$listeners` 或 `context.listeners`。
 - 必改：包装组件依赖 `$listeners` 手动转发父组件事件。
+- 必查：render/functional context 中的裸 `listeners`，例如 `render(h, { listeners })` 或 `const { listeners } = context`；只有确认来自 Vue2 functional/render context 时才迁移，普通变量不盲改。
 - 可不改：已有 Vue3 写法 `$attrs`，且事件落点明确。
 - 可不改：字符串、注释、文档中的 `$listeners`。
 - 阻塞：多根组件无法判断 attrs 应落在哪个元素。
@@ -72,7 +73,7 @@ rg -n '\$listeners|context\.listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"
 ## 验证命令
 
 ```bash
-rg -n '\$listeners|context\.listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'|inheritAttrs|\$attrs|emits\s*:' src
+rg -n '\$listeners|context\.listeners|\blisteners\b|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'|inheritAttrs|\$attrs|emits\s*:' src
 git diff --check
 git diff --stat
 ```
