@@ -30,20 +30,20 @@
 
 ## 搜索命令
 
+如果项目有 `src` 目录，先在 `src` 下执行：
+
 ```bash
-rg -n "model\\s*:|props\\s*:.*value|value\\s*:[^,}]+|\\$emit\\(['\\\"]input['\\\"]|@input=|v-model" src .
+rg -n 'model\s*:|props\s*:.*value|value\s*:[^,}]+|@input\s*=|v-model' src
+rg -n '\$emit\(\x27input\x27' src
+rg -n '\$emit\("input"' src
 ```
+
+如果项目源码不在 `src`，把命令末尾的 `src` 替换为 `.`。
 
 复杂包装组件再补充搜索：
 
 ```bash
-rg -n "\.sync|\$listeners|\$attrs|inheritAttrs|v-on:input|@input\s*=" src .
-```
-
-如果项目源码不在 `src`，先运行：
-
-```bash
-rg -n "model\\s*:|\\$emit\\(['\\\"]input['\\\"]|v-model" .
+rg -n '\.sync|\$listeners|\$attrs|inheritAttrs|v-on:input|@input\s*=' src
 ```
 
 ## 命中分类
@@ -62,10 +62,12 @@ rg -n "model\\s*:|\\$emit\\(['\\\"]input['\\\"]|v-model" .
   - 子组件 `props: { value: ... }` 改为 `props: { modelValue: ... }`。
   - 子组件 `$emit('input', nextValue)` 改为 `$emit('update:modelValue', nextValue)`。
   - 子组件内部读取受控值从 `this.value` 改为 `this.modelValue`。
+  - `emits` 只新增本次迁移需要的 `update:modelValue`，不顺手整理其他事件。
   - 同一组件内其他业务字段名 `value` 不改。
 - Vue2 `model` 选项：
   - 如果原协议是 `model: { prop: 'checked', event: 'change' }`，优先把父组件改为 `v-model:checked`。
   - 子组件对外同步事件改为 `$emit('update:checked', nextValue)`。
+  - `emits` 只新增本次迁移需要的 `update:checked` 这类对应事件，不顺手整理其他事件。
   - 删除 `model` 选项。
 - 父组件：
   - 对已迁移子组件保留 `v-model` 或改为带参数 `v-model:xxx`。
@@ -80,7 +82,9 @@ rg -n "model\\s*:|\\$emit\\(['\\\"]input['\\\"]|v-model" .
 ## 验证命令
 
 ```bash
-rg -n "model\\s*:|\\$emit\\(['\\\"]input['\\\"]|props\\s*:.*value|@input=|v-model" src .
+rg -n 'model\s*:|props\s*:.*value|@input\s*=|v-model' src
+rg -n '\$emit\(\x27input\x27' src
+rg -n '\$emit\("input"' src
 git diff --check
 git diff --stat
 ```
