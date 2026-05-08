@@ -34,6 +34,12 @@
 rg -n "model\\s*:|props\\s*:.*value|value\\s*:[^,}]+|\\$emit\\(['\\\"]input['\\\"]|@input=|v-model" src .
 ```
 
+复杂包装组件再补充搜索：
+
+```bash
+rg -n "\.sync|\$listeners|\$attrs|inheritAttrs|v-on:input|@input\s*=" src .
+```
+
 如果项目源码不在 `src`，先运行：
 
 ```bash
@@ -96,7 +102,7 @@ npm run build
 
 ## 停止条件
 
-- 需要改变组件对业务方暴露的 prop 名或事件名。
+- 除 Vue3 v-model 协议迁移所需的受控 prop/event 外，如需改变其他公开业务 API。
 - 一个公共组件有大量调用方，无法在本任务中确认全部调用语义。
 - 命中同时涉及 `.sync`、`$listeners`、`inheritAttrs` 或复杂表单校验。
 - 无法判断 `value` 是业务字段还是受控值。
