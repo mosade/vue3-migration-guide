@@ -12,12 +12,15 @@ Convert the migration guide into a safer agent-executable system for large legac
 
 The improved guide should let a weaker code agent make incremental progress without relying on broad architectural judgment. It should also make it easier for a human reviewer to inspect each step, understand residual risk, and decide when to stop for manual intervention.
 
+The guide must optimize for minimal change. The target applications are large legacy codebases with fragile implicit behavior, so the safest default is to leave code untouched unless a change is required to remove a Vue 3 migration blocker.
+
 ## Non-Goals
 
 - Do not introduce `@vue/compat`.
 - Do not migrate from `vue-cli` to Vite as part of this plan.
 - Do not rewrite the app to Composition API or Pinia.
 - Do not refactor unrelated business modules while migrating.
+- Do not improve style, naming, formatting, architecture, or business logic while migrating.
 - Do not treat build success as full migration completion.
 
 ## Recommended Approach
@@ -40,6 +43,7 @@ Each migration task should use this shape:
 - Classification rules: how to distinguish real hits from false positives.
 - Allowed edits: specific transformations the agent may perform.
 - Forbidden edits: changes that require human review or a separate task.
+- No-change rules: cases where the agent should explicitly leave code as-is.
 - Third-party dependency handling: what to do when the hit belongs to a library, plugin, or vendor wrapper.
 - Validation commands: commands to run after the task.
 - Manual validation points: pages or interactions a human should check.
@@ -50,11 +54,15 @@ Each migration task should use this shape:
 
 Each task should be executed as a small unit. The agent should not combine unrelated migration tasks in one pass.
 
+Minimal change is a hard rule. If existing code still works under Vue 3, or if the task cannot prove that a change is required, the agent should leave it alone and report why it was not changed. The agent should prefer small compatibility-preserving edits over cleanup, normalization, or architectural improvement.
+
 The agent must preserve public component contracts unless the task explicitly changes them. This matters most for `v-model`, `.sync`, `$listeners`, `emits`, slots, event bus replacement, router behavior, and store access.
 
 The agent should fix the first root cause when build or dev server commands fail. It should not chase secondary errors until the first failure has been addressed and rechecked.
 
 Large search-and-replace operations must be avoided unless the task gives a precise mechanical rule and the agent reports the full hit list before changing many files.
+
+Formatting-only diffs should be avoided. When formatting changes are unavoidable because a formatter runs as part of validation, the agent must mention that in the completion report.
 
 Third-party dependency conflicts should be recorded as blockers. The agent should not patch `node_modules`, add broad webpack aliases, or silently downgrade dependencies unless a task explicitly allows it.
 
