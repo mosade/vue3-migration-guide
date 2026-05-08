@@ -30,15 +30,13 @@
 
 ## 搜索命令
 
-```bash
-rg -n '\$listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'|inheritAttrs|\$attrs|emits\s*:' src .
-```
-
-如果项目源码不在 `src`，先运行：
+如果项目有 `src` 目录，先在 `src` 下执行：
 
 ```bash
-rg -n '\$listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'' .
+rg -n '\$listeners|context\.listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'|inheritAttrs|\$attrs|emits\s*:' src
 ```
+
+如果项目源码不在 `src`，把命令末尾的 `src` 替换为 `.`。
 
 ## 命中分类
 
@@ -55,9 +53,10 @@ rg -n '\$listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'' .
 - 简单单根包装组件：
   - `v-on="$listeners"` 改为 `v-bind="$attrs"`，前提是 attrs、class、style 和事件都应该落在同一个元素或子组件上。
 - 需要控制事件的包装组件：
-  - 为组件对外 `$emit` 的事件补充 `emits`。
-  - 对需要继续转发的事件显式绑定，例如 `@click="$attrs.onClick"` 只在确认项目使用渲染函数事件名时使用。
+  - 只有组件已经明确 `$emit` 某个对外事件，且本次改动会保留 re-emit 路径时，才为该事件补充 `emits`。
+  - 只是透传父监听器时，不要为了清理 `$attrs` 而添加 `emits`。
   - 模板中优先使用明确事件转发，例如 `@click="$emit('click', $event)"`。
+  - render/setup 中处理 `onXxx` props 时，必须确认 key 存在且落点正确，不要把它当通用模板迁移模式。
 - 多根组件：
   - 不自动透传 `$attrs`。
   - 先选择明确落点；无法确认时停止并报告。
@@ -73,10 +72,12 @@ rg -n '\$listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'' .
 ## 验证命令
 
 ```bash
-rg -n '\$listeners|context\.listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'' src .
+rg -n '\$listeners|context\.listeners|v-on="\$listeners"|v-on='"'"'\$listeners'"'"'|inheritAttrs|\$attrs|emits\s*:' src
 git diff --check
 git diff --stat
 ```
+
+如果项目源码不在 `src`，把命令末尾的 `src` 替换为 `.`。
 
 如果项目有明确脚本，再运行项目实际脚本，例如：
 
