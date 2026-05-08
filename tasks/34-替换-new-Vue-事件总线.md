@@ -40,7 +40,7 @@ rg -n 'new Vue\(|eventBus|EventBus|bus\.\$on|bus\.\$off|bus\.\$once|bus\.\$emit|
 如果项目源码不在 `src`，改为运行：
 
 ```bash
-rg -n 'new Vue\(|\.\$on\(|\.\$off\(|\.\$once\(|\.\$emit\(' .
+rg -n 'new Vue\(|eventBus|EventBus|bus\.\$on|bus\.\$off|bus\.\$once|bus\.\$emit|\.\$on\(|\.\$off\(|\.\$once\(|\.\$emit\(' .
 ```
 
 ## 命中分类
@@ -81,7 +81,7 @@ rg -n 'new Vue\(|\.\$on\(|\.\$off\(|\.\$once\(|\.\$emit\(' .
 如果项目有 `src` 目录，运行：
 
 ```bash
-rg -n 'new Vue\(|\.\$on\(|\.\$off\(|\.\$once\(' src
+rg -n 'new Vue\(|eventBus|EventBus|bus\.\$on|bus\.\$off|bus\.\$once|bus\.\$emit|\.\$on\(|\.\$off\(|\.\$once\(|\.\$emit\(' src
 git diff --check
 git diff --stat
 ```
