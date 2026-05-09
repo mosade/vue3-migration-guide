@@ -6,9 +6,9 @@ Deployed at [v3-migration.vuejs.org](https://v3-migration.vuejs.org)
 
 ## Implementation docs
 
-The actionable migration implementation guide is in `docs/README.md`.
+The actionable migration implementation guide is in `tasks/README.md`.
 
-It is organized as numbered steps under `docs/01-升级核心依赖与构建链路.md` through `docs/37-统一运行与回归验收.md`.
+It is organized as numbered runbooks under `tasks/01-升级-vue-到-3.x.md` through `tasks/58-确认主路由可跳转.md`.
 
 ## Translation guide
 
