@@ -46,17 +46,20 @@ rg -n 'Vue\.extend|new\s+[A-Z][A-Za-z0-9_]*\(|\$mount\(|document\.createElement|
 
 ## 命中分类
 
-- 必改：直接调用 Vue 实例的 `$destroy()`。
+- 必改：能确认是手动动态挂载根实例，且可在创建处保存 app 实例的 `$destroy()`。
 - 必改：`Vue.extend(...)`、`new Ctor(...)`、`instance.$mount(...)` 创建的临时组件随后通过 `$destroy()` 清理。
 - 可不改：普通业务对象、图表库、编辑器、播放器、地图、WebSocket、微前端容器等第三方实例的 `destroy()`。
 - 可不改：字符串、文档、注释中的 `$destroy` 或 `destroy(`。
 - 阻塞：无法证明 `destroy()` 接收者是否为 Vue 实例。
+- 阻塞：组件内部 `this.$destroy()`、子组件 ref 实例销毁，或无法追溯到 `createApp` / 手动 `$mount` 容器的实例销毁。
 - 阻塞：销毁逻辑同时负责全局事件、DOM 容器、body 子节点、计时器或跨应用资源，无法安全判断最小替换。
 
 ## 修改规则
 
 - 动态挂载组件改为 `createApp(Component, props)`，保存返回的 app 实例。
 - 原来调用 `vm.$destroy()` 的位置改为调用 `app.unmount()`。
+- `app.unmount()` 只能替换对应 `createApp(...).mount(container)` 创建出的 app。
+- 如果原代码依赖 mounted 返回的组件公开实例，必须保留对应引用，不得只保存 app 导致行为丢失。
 - 如果原逻辑手动移除 DOM 容器，保留等价的 `parentNode.removeChild(container)` 或现有清理逻辑。
 - 保留原事件解绑、定时器清理、回调触发顺序；无法确认顺序时停止。
 - 不顺手把服务式组件改为全局 store、provide/inject、Composition API 或插件重构。
