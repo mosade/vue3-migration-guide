@@ -47,7 +47,7 @@ rg -n 'Vue\.extend|new\s+[A-Z][A-Za-z0-9_]*\(|\$mount\(|document\.createElement|
 ## 命中分类
 
 - 必改：能确认是手动动态挂载根实例，且可在创建处保存 app 实例的 `$destroy()`。
-- 必改：`Vue.extend(...)`、`new Ctor(...)`、`instance.$mount(...)` 创建的临时组件随后通过 `$destroy()` 清理。
+- 必改：`Vue.extend(...)`、`new Ctor(...)`、`instance.$mount(...)` 创建的临时根组件随后通过 `$destroy()` 清理，且能在创建处改为 `createApp(...).mount(container)` 并保存 app 实例。
 - 可不改：普通业务对象、图表库、编辑器、播放器、地图、WebSocket、微前端容器等第三方实例的 `destroy()`。
 - 可不改：字符串、文档、注释中的 `$destroy` 或 `destroy(`。
 - 阻塞：无法证明 `destroy()` 接收者是否为 Vue 实例。
