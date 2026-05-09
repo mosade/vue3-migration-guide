@@ -18,15 +18,13 @@
 
 ## 阶段门禁
 
-1. 盘点门禁：列出依赖图、Vue 插件、UI 库、构建自定义项和核心业务流。
-2. 构建链门禁：Vue 3 compiler 和 loader 链能解析代表性 SFC。
-3. 入口门禁：入口、插件、router、store、全局属性、组件、指令都通过 Vue 3 app 实例安装。
-4. 语法门禁：已知 Vue2 模板和组件语法已迁移或明确标记为无需修改。
-5. 运行时门禁：已删除实例 API 和事件总线模式已替换。
-6. 生态门禁：router、Vuex、UI 库、自研插件与 Vue3 兼容。
-7. 开发门禁：dev server 可启动，浏览器加载后没有启动白屏。
-8. 生产门禁：生产构建完成，静态资源按预期 publicPath 加载。
-9. 业务门禁：登录、权限、动态路由、表单、表格、弹窗、上传下载、缓存页面等核心流完成回归。
+1. 构建链门禁：Vue 3 compiler 和 loader 链能解析代表性 SFC。
+2. 入口门禁：入口、插件、router、store、全局属性、组件、指令都通过 Vue 3 app 实例安装。
+3. 语法门禁：已知 Vue2 模板和组件语法已迁移或明确标记为无需修改。
+4. 运行时门禁：已删除实例 API 和事件总线模式已替换。
+5. 生态门禁：router、Vuex、UI 库、自研插件与 Vue3 兼容。
+6. 开发门禁：dev server 可启动，浏览器加载后没有启动白屏。
+7. 生产门禁：生产构建完成，静态资源按预期 publicPath 加载。
 
 ## 核心实施任务
 
@@ -55,52 +53,54 @@
 - [20.补充组件 emits 声明](./20-补充组件-emits-声明.md)
 - [21.移除 keyCode 修饰符](./21-移除-keyCode-修饰符.md)
 - [22.移除 inline-template](./22-移除-inline-template.md)
-- [23.迁移自定义指令钩子名](./23-迁移自定义指令钩子名.md)
-- [24.迁移数组 watch 行为差异](./24-迁移数组-watch-行为差异.md)
-- [25.迁移 v-if 与 v-for 同节点写法](./25-迁移-v-if-与-v-for-同节点写法.md)
-- [26.迁移 Transition 旧类名](./26-迁移-Transition-旧类名.md)
-- [27.迁移 render function API](./27-迁移-render-function-API.md)
-- [28.移除 functional: true](./28-移除-functional-true.md)
+- [23.迁移无特殊指令 template 标签](./23-迁移无特殊指令-template-标签.md)
+- [24.迁移自定义指令钩子名](./24-迁移自定义指令钩子名.md)
+- [25.迁移数组 watch 行为差异](./25-迁移数组-watch-行为差异.md)
+- [26.迁移 v-if 与 v-for 同节点写法](./26-迁移-v-if-与-v-for-同节点写法.md)
+- [27.迁移 Transition 旧类名](./27-迁移-Transition-旧类名.md)
+- [28.迁移 render function API](./28-迁移-render-function-API.md)
+- [29.移除 functional: true](./29-移除-functional-true.md)
 
 ## 运行时兼容实施任务
 
-- [29.移除 Vue.set](./29-移除-Vue.set.md)
-- [30.移除 Vue.delete](./30-移除-Vue.delete.md)
-- [31.移除 $on 用法](./31-移除-on-用法.md)
-- [32.移除 $off 用法](./32-移除-off-用法.md)
-- [33.移除 $once 用法](./33-移除-once-用法.md)
-- [34.替换 new Vue 事件总线](./34-替换-new-Vue-事件总线.md)
-- [35.移除 $children 依赖](./35-移除-children-依赖.md)
+- [30.移除 Vue.set](./30-移除-Vue.set.md)
+- [31.移除 Vue.delete](./31-移除-Vue.delete.md)
+- [32.移除 $on 用法](./32-移除-on-用法.md)
+- [33.移除 $off 用法](./33-移除-off-用法.md)
+- [34.移除 $once 用法](./34-移除-once-用法.md)
+- [35.替换 new Vue 事件总线](./35-替换-new-Vue-事件总线.md)
+- [36.移除 $destroy 用法](./36-移除-destroy-用法.md)
+- [37.移除 $children 依赖](./37-移除-children-依赖.md)
 
 ## 生态依赖实施任务
 
-- [36.升级 vue-router 到 4.x](./36-升级-vue-router-到-4.x.md)
-- [37.迁移 Router 创建方式](./37-迁移-Router-创建方式.md)
-- [38.迁移 Router history 配置](./38-迁移-Router-history-配置.md)
-- [39.迁移 Router catch-all 路由](./39-迁移-Router-catch-all-路由.md)
-- [40.迁移 router.onReady](./40-迁移-router.onReady.md)
-- [41.迁移 router-view 组合写法](./41-迁移-router-view-组合写法.md)
-- [42.升级 vuex 到 4.x](./42-升级-vuex-到-4.x.md)
-- [43.迁移 Vuex 安装方式](./43-迁移-Vuex-安装方式.md)
+- [38.升级 vue-router 到 4.x](./38-升级-vue-router-到-4.x.md)
+- [39.迁移 Router 创建方式](./39-迁移-Router-创建方式.md)
+- [40.迁移 Router history 配置](./40-迁移-Router-history-配置.md)
+- [41.迁移 Router catch-all 路由](./41-迁移-Router-catch-all-路由.md)
+- [42.迁移 router.onReady](./42-迁移-router.onReady.md)
+- [43.迁移 router-view 组合写法](./43-迁移-router-view-组合写法.md)
+- [44.升级 vuex 到 4.x](./44-升级-vuex-到-4.x.md)
+- [45.迁移 Vuex 安装方式](./45-迁移-Vuex-安装方式.md)
 
 ## 补充兼容实施任务
 
-- [44.迁移全局 API Tree-Shaking](./44-迁移全局-API-Tree-Shaking.md)
-- [45.迁移异步组件定义](./45-迁移异步组件定义.md)
-- [46.迁移自定义元素与 is 属性](./46-迁移自定义元素与-is-属性.md)
-- [47.迁移 key 与 v-bind 顺序](./47-迁移-key-与-v-bind-顺序.md)
-- [48.迁移 Options API 兼容差异](./48-迁移-Options-API-兼容差异.md)
-- [50.迁移渲染边界兼容差异](./50-迁移渲染边界兼容差异.md)
+- [46.迁移全局 API Tree-Shaking](./46-迁移全局-API-Tree-Shaking.md)
+- [47.迁移异步组件定义](./47-迁移异步组件定义.md)
+- [48.迁移自定义元素与 is 属性](./48-迁移自定义元素与-is-属性.md)
+- [49.迁移 key 与 v-bind 顺序](./49-迁移-key-与-v-bind-顺序.md)
+- [50.迁移 Options API 兼容差异](./50-迁移-Options-API-兼容差异.md)
+- [52.迁移渲染边界兼容差异](./52-迁移渲染边界兼容差异.md)
 
 ## 构建实施任务
 
-- [49.修正 vue-cli 构建配置以支持 Vue3](./49-修正-vue-cli-构建配置以支持-vue3.md)
-- [51.执行开发服务器启动修复](./51-执行开发服务器启动修复.md)
-- [52.执行生产构建修复](./52-执行生产构建修复.md)
+- [51.修正 vue-cli 构建配置以支持 Vue3](./51-修正-vue-cli-构建配置以支持-vue3.md)
+- [53.执行开发服务器启动修复](./53-执行开发服务器启动修复.md)
+- [54.执行生产构建修复](./54-执行生产构建修复.md)
 
 ## 完成标准
 
-- [53.确认 dev server 可启动](./53-确认-dev-server-可启动.md)
-- [54.确认生产构建可通过](./54-确认生产构建可通过.md)
-- [55.确认首屏可渲染](./55-确认首屏可渲染.md)
-- [56.确认主路由可跳转](./56-确认主路由可跳转.md)
+- [55.确认 dev server 可启动](./55-确认-dev-server-可启动.md)
+- [56.确认生产构建可通过](./56-确认生产构建可通过.md)
+- [57.确认首屏可渲染](./57-确认首屏可渲染.md)
+- [58.确认主路由可跳转](./58-确认主路由可跳转.md)
