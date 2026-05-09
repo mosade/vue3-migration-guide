@@ -604,7 +604,7 @@ It is organized as numbered runbooks under `tasks/01-升级-vue-到-3.x.md` thro
 Run:
 
 ```bash
-rg -n 'docs/README|docs/[0-9][0-9]-' README.md tasks docs
+rg -n 'docs/README|docs/[0-9][0-9]-' README.md tasks
 ```
 
 Expected: exit code `1`, no matches.
@@ -686,7 +686,7 @@ Run:
 
 ```bash
 rg -n '盘点门禁|业务门禁' tasks/README.md
-rg -n 'docs/README|docs/[0-9][0-9]-' README.md tasks docs
+rg -n 'docs/README|docs/[0-9][0-9]-' README.md tasks
 ```
 
 Expected: both commands exit `1`, no matches.
