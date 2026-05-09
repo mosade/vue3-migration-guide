@@ -1,11 +1,10 @@
-# 27.迁移 render function API
+# 47.迁移 key 与 v-bind 顺序
 
 ## 目标
 
-- 迁移所有 render / JSX 相关实现。
-- 只处理本任务范围内的问题。
+- 修复 Vue 3 中 `key` 行为和 `v-bind="object"` 合并顺序差异。
+- 保持列表复用、条件分支重建、属性覆盖优先级与原业务语义一致。
 - 默认保持现有业务行为和组件外部 API。
-- render/JSX 组件的 props、事件、插槽、ref、动态组件都能正常工作。
 
 ## 最小改动原则
 
@@ -13,7 +12,7 @@
 - 不能证明某处代码会阻塞 Vue3 迁移时，不修改，只记录。
 - 不做命名、格式、目录、架构、业务逻辑优化。
 - 不因为代码看起来旧、乱、重复就顺手重构。
-- `class`、`style`、事件名、DOM prop、slot children 的结构都变了；JSX 项目还要同步检查 Babel/TSX 插件版本和事件命名。
+- 不移除所有 `key`，只处理 Vue 3 语义会变化的命中。
 
 ## 允许修改范围
 
@@ -32,23 +31,28 @@
 
 ## 搜索命令
 
-原搜索线索：全局搜索 `render(`、`createElement`、`h(`、`jsx`、`scopedSlots`、`domProps`、`on:`、`nativeOn`。
+原搜索线索：全局搜索 `<template v-for>` 子节点 key、条件分支相同 key、同时存在对象 `v-bind` 与单独属性的标签。
 
 ```bash
-rg -n 'render\s*\(|createElement|\bh\s*\(|jsx|tsx|scopedSlots|domProps|nativeOn|\bon\s*:' src
+rg -n '<template[^>]*v-for|v-if|v-else|v-else-if|:key=|\skey=|v-bind=' src
 ```
 
 ## 命中分类
 
-- 必改：命中内容直接使用了本任务要移除或迁移的 Vue2 API、语法、依赖或配置。
-- 可不改：命中内容在 Vue3 下仍可工作，或只是变量名、字符串、注释、文档、业务字段。
-- 阻塞：命中内容属于第三方库、私有插件、公共 API 或业务语义不清，不能安全判断。
-- 阻塞：修改需要改变组件外部 API、路由行为、store 结构、事件 payload 或大量调用方。
+- 必改：`<template v-for>` 的 `key` 写在子节点上，应移动到 `<template>`。
+- 必改：`v-if` / `v-else-if` / `v-else` 分支手写了相同 `key` 来强制复用。
+- 必改：同一标签既有 `v-bind="object"` 又有同名显式属性，且依赖 Vue 2 中显式属性永远覆盖对象属性的行为。
+- 可不改：列表普通子节点上的稳定唯一 `key`。
+- 可不改：条件分支没有手写 `key`，或手写 `key` 本身唯一。
+- 阻塞：无法判断相同 `key` 是故意强制复用还是历史遗留。
+- 阻塞：无法判断 `v-bind` 对象和显式属性的覆盖优先级是否有业务语义。
 
 ## 修改规则
 
-- 将 Vue2 `render(h)`、data object、slot/scopedSlot、事件对象写法迁到 Vue3 `h(type, props, children)` 模型。
-- JSX 项目同步检查 Babel/TSX 插件版本和事件命名。
+- `<template v-for>`：将唯一 `key` 移到 `<template>` 上，子节点重复 `key` 按最小范围删除或保留必要唯一 key。
+- 条件分支：多数场景移除分支手写 `key`；如果业务必须区分实例，改为唯一 `key`。
+- `v-bind="object"`：若要保持 Vue 2 的显式属性优先，把 `v-bind="object"` 放在显式属性之前。
+- 不改变列表排序、过滤条件、分支条件和业务字段名。
 - 对“必改”命中做最小兼容性修改。
 - 对“可不改”命中保持原样，并在完成报告中说明。
 - 对“阻塞”命中停止修改，记录文件、行号、原因和建议人工决策点。
@@ -62,7 +66,7 @@ rg -n 'render\s*\(|createElement|\bh\s*\(|jsx|tsx|scopedSlots|domProps|nativeOn|
 ## 验证命令
 
 ```bash
-rg -n 'render\s*\(|createElement|\bh\s*\(|jsx|tsx|scopedSlots|domProps|nativeOn|\bon\s*:' src
+rg -n '<template[^>]*v-for|v-if|v-else|v-else-if|:key=|\skey=|v-bind=' src
 git diff --check
 git diff --stat
 ```
@@ -77,9 +81,9 @@ npm run build
 
 ## 人工验收点
 
-- render/JSX 组件的 props、事件、插槽、ref、动态组件都能正常工作。
-- JSX/TSX 编译链没有新增错误。
-- 检查浏览器控制台没有由本任务引入的新错误。
+- 条件切换时表单输入、校验状态、动画状态是否按原语义复用或重建。
+- 列表增删改排序后 DOM 和组件状态不串行。
+- 依赖 `v-bind` 覆盖顺序的 id、class、style、disabled、aria 属性结果正确。
 
 ## 停止条件
 

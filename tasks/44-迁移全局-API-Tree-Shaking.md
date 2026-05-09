@@ -1,11 +1,10 @@
-# 27.迁移 render function API
+# 44.迁移全局 API Tree-Shaking
 
 ## 目标
 
-- 迁移所有 render / JSX 相关实现。
-- 只处理本任务范围内的问题。
+- 迁移 Vue 2 中仍从默认 `Vue` 对象访问的非变异全局 API。
+- 将 `Vue.nextTick`、`Vue.observable`、`Vue.version`、`Vue.compile` 等改为 Vue 3 可用的命名导出或明确替代方案。
 - 默认保持现有业务行为和组件外部 API。
-- render/JSX 组件的 props、事件、插槽、ref、动态组件都能正常工作。
 
 ## 最小改动原则
 
@@ -13,7 +12,7 @@
 - 不能证明某处代码会阻塞 Vue3 迁移时，不修改，只记录。
 - 不做命名、格式、目录、架构、业务逻辑优化。
 - 不因为代码看起来旧、乱、重复就顺手重构。
-- `class`、`style`、事件名、DOM prop、slot children 的结构都变了；JSX 项目还要同步检查 Babel/TSX 插件版本和事件命名。
+- `Vue.set`、`Vue.delete` 已由独立任务处理，本任务只记录交叉命中，不重复修改。
 
 ## 允许修改范围
 
@@ -32,23 +31,29 @@
 
 ## 搜索命令
 
-原搜索线索：全局搜索 `render(`、`createElement`、`h(`、`jsx`、`scopedSlots`、`domProps`、`on:`、`nativeOn`。
+原搜索线索：全局搜索仍从默认 `Vue` 对象访问的非变异 API，以及插件里对这些 API 的引用。
 
 ```bash
-rg -n 'render\s*\(|createElement|\bh\s*\(|jsx|tsx|scopedSlots|domProps|nativeOn|\bon\s*:' src
+rg -n 'Vue\.(nextTick|observable|version|compile|extend|set|delete)\b|import\s+Vue\s+from\s+' .
 ```
 
 ## 命中分类
 
-- 必改：命中内容直接使用了本任务要移除或迁移的 Vue2 API、语法、依赖或配置。
-- 可不改：命中内容在 Vue3 下仍可工作，或只是变量名、字符串、注释、文档、业务字段。
-- 阻塞：命中内容属于第三方库、私有插件、公共 API 或业务语义不清，不能安全判断。
-- 阻塞：修改需要改变组件外部 API、路由行为、store 结构、事件 payload 或大量调用方。
+- 必改：`Vue.nextTick(...)`，改为 `import { nextTick } from 'vue'` 后调用 `nextTick(...)`。
+- 必改：`Vue.observable(...)`，改为 `import { reactive } from 'vue'` 后调用 `reactive(...)`，并确认原对象是否被跨模块共享。
+- 必改：`Vue.extend(...)` 用于类型推断时，改为 `defineComponent(...)`。
+- 必改：`Vue.extend(...)` 后立即 `new Ctor().$mount(...)` 的临时挂载，改为 `createApp(Component).mount(...)`。
+- 可不改：组件实例上的 `this.$nextTick(...)`，除非项目约定也统一迁移。
+- 可不改：`Vue.set`、`Vue.delete` 命中，交给任务 29、30。
+- 阻塞：`Vue.compile` 依赖运行时模板编译，且无法确认当前构建是否使用 full build。
+- 阻塞：第三方插件 UMD 自动安装、外部包或测试工具直接依赖 Vue 2 构造器。
 
 ## 修改规则
 
-- 将 Vue2 `render(h)`、data object、slot/scopedSlot、事件对象写法迁到 Vue3 `h(type, props, children)` 模型。
-- JSX 项目同步检查 Babel/TSX 插件版本和事件命名。
+- 对 `Vue.nextTick` 做最小导入替换，不改变异步时序和回调上下文。
+- 对 `Vue.observable` 只替换为 `reactive`，不顺手改 store 结构或响应式访问方式。
+- 对 `Vue.extend` 区分类型推断、继承、动态挂载三种语义；无法确定时停止并报告。
+- 对插件内部命中，确保 Vue 作为 peer/external 时不被打包进插件产物。
 - 对“必改”命中做最小兼容性修改。
 - 对“可不改”命中保持原样，并在完成报告中说明。
 - 对“阻塞”命中停止修改，记录文件、行号、原因和建议人工决策点。
@@ -62,7 +67,7 @@ rg -n 'render\s*\(|createElement|\bh\s*\(|jsx|tsx|scopedSlots|domProps|nativeOn|
 ## 验证命令
 
 ```bash
-rg -n 'render\s*\(|createElement|\bh\s*\(|jsx|tsx|scopedSlots|domProps|nativeOn|\bon\s*:' src
+rg -n 'Vue\.(nextTick|observable|version|compile|extend)\b|import\s+Vue\s+from\s+' .
 git diff --check
 git diff --stat
 ```
@@ -77,9 +82,9 @@ npm run build
 
 ## 人工验收点
 
-- render/JSX 组件的 props、事件、插槽、ref、动态组件都能正常工作。
-- JSX/TSX 编译链没有新增错误。
-- 检查浏览器控制台没有由本任务引入的新错误。
+- 依赖 `nextTick` 的 DOM 测量、滚动定位、焦点设置时序不变。
+- 由 `observable` 迁移的共享状态仍能触发视图更新。
+- 动态挂载组件仍能创建、卸载并清理事件监听。
 
 ## 停止条件
 

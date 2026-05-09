@@ -1,11 +1,10 @@
-# 27.迁移 render function API
+# 48.迁移 Options API 兼容差异
 
 ## 目标
 
-- 迁移所有 render / JSX 相关实现。
-- 只处理本任务范围内的问题。
+- 迁移 Vue 3 中 Options API 的细节差异：`data` 必须为函数、mixin data 浅合并、props 默认值不再能访问 `this`、`propsData` 移除。
+- 修复属性 coercion 变化导致的可见行为差异。
 - 默认保持现有业务行为和组件外部 API。
-- render/JSX 组件的 props、事件、插槽、ref、动态组件都能正常工作。
 
 ## 最小改动原则
 
@@ -13,7 +12,7 @@
 - 不能证明某处代码会阻塞 Vue3 迁移时，不修改，只记录。
 - 不做命名、格式、目录、架构、业务逻辑优化。
 - 不因为代码看起来旧、乱、重复就顺手重构。
-- `class`、`style`、事件名、DOM prop、slot children 的结构都变了；JSX 项目还要同步检查 Babel/TSX 插件版本和事件命名。
+- 不把 mixin 深层合并问题顺手重构为 Composition API。
 
 ## 允许修改范围
 
@@ -32,23 +31,30 @@
 
 ## 搜索命令
 
-原搜索线索：全局搜索 `render(`、`createElement`、`h(`、`jsx`、`scopedSlots`、`domProps`、`on:`、`nativeOn`。
+原搜索线索：全局搜索对象形式 `data`、props 默认函数里的 `this`、`propsData`、布尔 false 绑定到非布尔属性。
 
 ```bash
-rg -n 'render\s*\(|createElement|\bh\s*\(|jsx|tsx|scopedSlots|domProps|nativeOn|\bon\s*:' src
+rg -n 'data\s*:\s*\{|default\s*\([^)]*\)\s*\{|default\s*:\s*function|propsData|contenteditable|draggable|spellcheck|aria-[a-z-]+|:\w+=.*false' src
 ```
 
 ## 命中分类
 
-- 必改：命中内容直接使用了本任务要移除或迁移的 Vue2 API、语法、依赖或配置。
-- 可不改：命中内容在 Vue3 下仍可工作，或只是变量名、字符串、注释、文档、业务字段。
-- 阻塞：命中内容属于第三方库、私有插件、公共 API 或业务语义不清，不能安全判断。
-- 阻塞：修改需要改变组件外部 API、路由行为、store 结构、事件 payload 或大量调用方。
+- 必改：组件选项中 `data: { ... }`。
+- 必改：props default factory 中访问 `this`。
+- 必改：`propsData` 用于创建根实例或测试挂载，需改为 `createApp` 第二参数或测试工具 Vue 3 写法。
+- 必改：依赖 Vue 2 将非布尔属性 `false` 移除的绑定，Vue 3 下需要改为 `null` 或 `undefined` 才移除。
+- 可不改：`data()` 已返回对象，且不依赖 mixin 深合并。
+- 可不改：字符串、文档、普通业务字段里的 `propsData`。
+- 阻塞：mixin / extends 的 data 深合并语义不清，可能影响多个业务模块。
+- 阻塞：props 默认值依赖实例注入、路由、store 或全局属性，无法安全替换。
 
 ## 修改规则
 
-- 将 Vue2 `render(h)`、data object、slot/scopedSlot、事件对象写法迁到 Vue3 `h(type, props, children)` 模型。
-- JSX 项目同步检查 Babel/TSX 插件版本和事件命名。
+- `data: { ... }` 改为 `data() { return { ... } }`，不改字段名和初始值。
+- props default factory 需要使用其他 props 时，改用 Vue 3 传入的 raw props 参数。
+- props default factory 需要依赖注入时，明确使用 `inject`；无法确认默认值来源时停止。
+- `propsData` 根实例场景改为 `createApp(Root, props)`；测试场景按当前测试工具 Vue 3 API 修改。
+- 对非布尔 attribute，如果原语义是移除属性，使用 `null` 或 `undefined`，不要使用 `false`。
 - 对“必改”命中做最小兼容性修改。
 - 对“可不改”命中保持原样，并在完成报告中说明。
 - 对“阻塞”命中停止修改，记录文件、行号、原因和建议人工决策点。
@@ -62,7 +68,7 @@ rg -n 'render\s*\(|createElement|\bh\s*\(|jsx|tsx|scopedSlots|domProps|nativeOn|
 ## 验证命令
 
 ```bash
-rg -n 'render\s*\(|createElement|\bh\s*\(|jsx|tsx|scopedSlots|domProps|nativeOn|\bon\s*:' src
+rg -n 'data\s*:\s*\{|default\s*\([^)]*\)\s*\{|default\s*:\s*function|propsData|contenteditable|draggable|spellcheck|aria-[a-z-]+|:\w+=.*false' src
 git diff --check
 git diff --stat
 ```
@@ -77,9 +83,9 @@ npm run build
 
 ## 人工验收点
 
-- render/JSX 组件的 props、事件、插槽、ref、动态组件都能正常工作。
-- JSX/TSX 编译链没有新增错误。
-- 检查浏览器控制台没有由本任务引入的新错误。
+- 根实例初始 props、测试挂载 props 和默认值行为不变。
+- 依赖 mixin 默认对象的页面没有丢失嵌套字段。
+- `contenteditable`、`draggable`、`spellcheck`、`aria-*` 等属性输出符合原交互和可访问性预期。
 
 ## 停止条件
 

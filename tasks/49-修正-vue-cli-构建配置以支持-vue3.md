@@ -47,7 +47,6 @@ rg -n 'vue.config.js|chainWebpack|configureWebpack|vue\$|vue-loader|transpileDep
 
 ## 修改规则
 
-- 修正 `vue-cli`、webpack 及其 Vue 插件配置，确保使用 Vue 3 对应版本与接入方式。
 - 修正 `vue-cli`、webpack 及 Vue 插件配置，确保使用 Vue3 对应版本与接入方式。
 - 构建成功前不要清理历史配置，只处理直接阻塞 Vue3 的配置。
 - 对“必改”命中做最小兼容性修改。
